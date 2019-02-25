@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Homework
 {
@@ -13,15 +14,15 @@ namespace Homework
         {
             var urlValidatorInstance = new URLValidator();
 
-            List<string> urls = new List<string>
-            {
+            List<string> urls =  new List<string>{
                 "google.com",
                 "apple.com",
                 "xbox.com",
-                "pizza.pizza"
+                "pizza.pizza",
+                "javascript:alert('Hack me!')"
             };
             
-             urlValidatorInstance.ValidURLS(urls);
+            urlValidatorInstance.GetValidUrls(urls);
             Console.ReadLine();
         }
     }
@@ -30,20 +31,34 @@ namespace Homework
     {
         private static readonly HttpClient client = new HttpClient();
 
-        public async Task<List<string>> ValidURLS(List<string> urlsToValidate)
+        public async Task<List<string>> GetValidUrls(List<string> urlsToValidate)
         {
             List<string> validUrls = new List<string>();
+
+            // Split up the list of strings
 
             foreach (string url in urlsToValidate)
             {
                 Uri uriResult;
 
+                // If it's actually a valid URL
                 if (validURL(url, out uriResult))
                 {
-                    HttpResponseMessage response = await client.GetAsync(uriResult.AbsoluteUri);
-                    if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                    Console.WriteLine(uriResult.AbsoluteUri);
+                    // Send an http GET request to the URL and await the response
+                    try
                     {
-                        validUrls.Add(url);
+                        HttpResponseMessage response = await client.GetAsync(uriResult.AbsoluteUri);
+
+                        // If it's a 200 range response I.E OK add it as a validURL
+                        if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                        {
+                            validUrls.Add(url);
+                        }
+                    }
+                    catch(InvalidCastException e)
+                    {
+                        Console.WriteLine(e.Message);
                     }
                 }
             }
@@ -54,15 +69,17 @@ namespace Homework
             }
             return validUrls;
         }
+        
 
-        private bool validURL(string s, out Uri resultUri)
+
+        private bool validURL(string s, out Uri resultURI)
         {
             if (!Regex.IsMatch(s, @"^https?:\/\/", RegexOptions.IgnoreCase))
                 s = "http://" + s;
 
-            if (Uri.TryCreate(s, UriKind.Absolute, out resultUri))
-                return (resultUri.Scheme == Uri.UriSchemeHttp ||
-                        resultUri.Scheme == Uri.UriSchemeHttps);
+            if (Uri.TryCreate(s, UriKind.Absolute, out resultURI))
+                return (resultURI.Scheme == Uri.UriSchemeHttp ||
+                        resultURI.Scheme == Uri.UriSchemeHttps);
 
             return false;
         }
