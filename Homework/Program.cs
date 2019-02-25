@@ -44,7 +44,6 @@ namespace Homework
                 // If it's actually a valid URL
                 if (validURL(url, out uriResult))
                 {
-                    Console.WriteLine(uriResult.AbsoluteUri);
                     // Send an http GET request to the URL and await the response
                     try
                     {
