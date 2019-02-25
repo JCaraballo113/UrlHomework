@@ -64,7 +64,7 @@ namespace Homework
                     }
                     catch(HttpRequestException e)
                     {
-                        Debug.WriteLine("Url is not valid: " + uriResult.AbsoluteUri);
+                        Debug.WriteLine("Url is not valid: " + uriResult.AbsoluteUri + " " + e.Message);
                     }
                 }
             }
