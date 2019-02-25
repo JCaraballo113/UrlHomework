@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Diagnostics;
 
 namespace Homework
 {
@@ -19,10 +20,16 @@ namespace Homework
                 "apple.com",
                 "xbox.com",
                 "pizza.pizza",
-                "javascript:alert('Hack me!')"
+                "hihihi"
             };
+
+            var validatedUrls = urlValidatorInstance.GetValidUrls(urls).Result;
             
-            urlValidatorInstance.GetValidUrls(urls);
+            foreach(string url in validatedUrls)
+            {
+                Console.WriteLine(url);
+            }
+            
             Console.ReadLine();
         }
     }
@@ -55,17 +62,13 @@ namespace Homework
                             validUrls.Add(url);
                         }
                     }
-                    catch(InvalidCastException e)
+                    catch(HttpRequestException e)
                     {
-                        Console.WriteLine(e.Message);
+                        Debug.WriteLine("Url is not valid: " + uriResult.AbsoluteUri);
                     }
                 }
             }
-
-            foreach(string url in validUrls)
-            {
-                Console.WriteLine(url);
-            }
+            
             return validUrls;
         }
         
